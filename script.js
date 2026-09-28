@@ -315,11 +315,6 @@ function speakParagraph(btn) {
   speakSpans(btn, btn.closest('.story-para').querySelector('.para-text'), 0.9);
 }
 
-function speakPassage(btn) {
-  const scroll = btn.closest('.story-panel').querySelector('.story-scroll');
-  speakSpans(btn, scroll, 0.9);
-}
-
 /* ── STORY PANEL ────────────────────────────────────── */
 function renderStoryPanel(panelId) {
   const panel = document.getElementById(panelId);
@@ -330,7 +325,6 @@ function renderStoryPanel(panelId) {
   ).join('');
   panel.innerHTML = `
     <div class="story-panel-header">
-      <button class="speak-btn" onclick="speakPassage(this)" title="Read the story aloud">🔊</button>
       <span>📖 ${escapeHtml(passage.title)}</span>
     </div>
     <div class="story-scroll">${paras}</div>`;

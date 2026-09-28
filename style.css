@@ -631,7 +631,6 @@ body.story-active .container { max-width: 1160px; }
   padding: 8px 12px; border-radius: 12px 12px 0 0;
   display: flex; align-items: center; gap: 10px;
 }
-.story-panel-header .speak-btn { background: #fff; }
 .story-scroll {
   background: #f0f4ff; border: 2px solid #c7d7fb; border-top: none;
   border-radius: 0 0 12px 12px; padding: 14px 16px;
