@@ -328,7 +328,6 @@ function renderStoryPanel(panelId) {
       <span>📖 ${escapeHtml(passage.title)}</span>
     </div>
     <div class="story-scroll">${paras}</div>`;
-  document.body.classList.add('story-active');
 }
 
 /* ══════════════════════════════════════════════════════
@@ -535,12 +534,18 @@ const app = {
     this.currentIndex    = 0;
     this.timerSeconds    = 0;
 
-    this.currentBank = window.RAD_MC.map(q => {
+    const withShuffledChoices = q => {
       const choices = [...q.choices];
       shuffle(choices);
       return { ...q, choices };
-    });
-    shuffle(this.currentBank);
+    };
+    // Skills questions first, then story questions — each group shuffled —
+    // so the story panel appears once instead of flickering in and out.
+    const skills = window.RAD_MC.filter(q => !q.story).map(withShuffledChoices);
+    const story  = window.RAD_MC.filter(q =>  q.story).map(withShuffledChoices);
+    shuffle(skills);
+    shuffle(story);
+    this.currentBank = [...skills, ...story];
 
     const banner = document.getElementById('review-mode-banner');
     banner.classList.toggle('hidden', !reviewMode);
@@ -715,6 +720,7 @@ const app = {
     document.getElementById('score-text').textContent    = `${getFirstName(this.studentName)} · ${QUIZ_LABEL}`;
     document.getElementById('progress-fill').style.width = `${(this.currentIndex / total) * 100}%`;
     document.getElementById('question-text').textContent = q.q;
+    document.body.classList.toggle('story-active', !!q.story);
 
     document.getElementById('confirm-btn').classList.add('hidden');
     document.getElementById('next-btn').classList.add('hidden');
@@ -851,6 +857,7 @@ const app = {
     stopConfetti();
     this.show('written-screen');
     renderStoryPanel('written-story-panel');
+    document.body.classList.add('story-active');
 
     const reminder = document.getElementById('mc-score-reminder');
     reminder.classList.remove('hidden');
