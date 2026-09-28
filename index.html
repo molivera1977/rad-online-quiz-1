@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAD Online Quiz 1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="container">
+  <h1>✍️ RAD Online Quiz 1</h1>
+  <p class="welcome-sub">Restate · Answer · Detail</p>
+
+  <!-- ══════════ START SCREEN ══════════ -->
+  <div id="start-screen">
+
+    <div id="welcome-panel" style="text-align:center;padding:10px 0 24px;">
+      <p style="font-size:1.05rem;color:#777;margin:0 auto 28px;max-width:420px;line-height:1.8;">
+        Show what you know about writing RAD answers.<br>
+        20 multiple-choice questions, then three written RAD answers.
+      </p>
+      <button class="lgs-btn" onclick="app.showReadAloudIntro()">🚀 Let's Get Started!</button>
+      <div style="text-align:right;margin-top:10px;">
+        <span onclick="app.promptTeacherReview()" style="font-size:0.72rem;color:#bbb;cursor:pointer;user-select:none;">Teacher Access</span>
+      </div>
+    </div>
+
+    <div id="student-login-panel" class="hidden">
+
+      <!-- RESUME CARD -->
+      <div id="resume-container" class="hidden">
+        <div style="background:#fff8f0;border:3px solid #e67e22;border-radius:16px;padding:24px 20px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:2.5rem;margin-bottom:8px;">↩️</div>
+          <p style="margin:0 0 6px;font-weight:800;color:#a04000;font-size:1.1rem;">Welcome back!</p>
+          <p style="margin:0 0 16px;color:#555;font-size:0.9rem;">You have an unfinished quiz:</p>
+          <div id="resume-detail" style="font-size:1.4rem;font-weight:800;color:#e67e22;margin-bottom:20px;"></div>
+          <button class="resume-btn" onclick="app.resumeSession()" style="width:100%;font-size:1rem;padding:14px;">↩️ Resume Where I Left Off</button>
+          <div style="margin-top:14px;">
+            <button onclick="app.discardProgress()"
+              style="background:none;border:none;color:#c0392b;font-size:0.82rem;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px;">
+              🗑️ Discard &amp; start over (Teacher PIN required)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1 — SIGN IN -->
+      <div class="step-card" id="login-step-card">
+        <span class="step-label">Step 1 — Sign In</span>
+        <div class="login-box">
+          <label for="name-select">👤 Select your name:</label>
+          <select id="name-select" onchange="app.onNameSelect()">
+            <option value="">-- Choose your name --</option>
+          </select>
+          <div id="pin-section" class="hidden">
+            <label for="student-pin" id="pin-label">🔒 Enter your student number:</label>
+            <input type="password" id="student-pin" placeholder="Student number…"
+                   onkeydown="if(event.key==='Enter') app.attemptLogin()" autocomplete="new-password" />
+            <div id="guest-name-section" class="hidden">
+              <label for="guest-display-name">✏️ Enter your first name:</label>
+              <input type="text" id="guest-display-name" placeholder="e.g. Henry" maxlength="20"
+                     onkeydown="if(event.key==='Enter') app.attemptLogin()" />
+            </div>
+            <button class="sign-in-btn" onclick="app.attemptLogin()">✅ Sign In</button>
+          </div>
+          <div class="login-error" id="login-error"></div>
+        </div>
+      </div>
+
+      <!-- STEP 2 — CHOOSE A QUIZ -->
+      <div id="form-select-section" class="hidden">
+        <div class="step-card">
+          <span class="step-label">Step 2 — Start the Quiz</span>
+          <div class="start-grid" style="grid-template-columns:1fr;">
+            <button class="start-btn" id="btn-start-quiz" onclick="app.attemptStart()">✍️ RAD Online Quiz 1<span class="form-btn-sub">20 questions + 3 written answers</span></button>
+          </div>
+        </div>
+        <div style="background:#f0f4ff;border:2px solid #a9c4f5;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:0.88rem;color:#2c3e50;line-height:1.6;">
+          📋 <strong>Rules:</strong> The quiz has <strong>20 multiple-choice questions</strong>, then <strong>3 written RAD answers</strong>.
+          You take the quiz <strong>one time</strong>. Your teacher can allow a retake.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ READ ALOUD INTRO ══════════ -->
+  <div id="readaloud-screen" class="hidden">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:3.5rem;margin-bottom:10px;">🔊</div>
+      <h2 style="color:var(--primary);margin:0 0 8px;">Read Aloud is Available!</h2>
+      <p style="color:#555;font-size:0.95rem;line-height:1.6;max-width:420px;margin:0 auto;">
+        Every question, answer choice, story, and writing prompt has its own speaker button.<br>
+        You can use it as much as you need!
+      </p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:420px;margin:0 auto 24px;">
+      <div style="background:#eaf4ff;border:2px solid #b3d4f5;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:2rem;">1️⃣</span><div><strong>Tap 🔊 once</strong> — it is read aloud</div>
+      </div>
+      <div style="background:#fff3e0;border:2px solid #ffd08a;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:2rem;">2️⃣</span><div><strong>Tap ⏹ to stop</strong> — reading stops immediately</div>
+      </div>
+      <div style="background:#e8f5e9;border:2px solid #a5d6a7;border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:16px;">
+        <span style="font-size:2rem;">3️⃣</span><div><strong>Tap 🔊 again</strong> — it replays from the beginning</div>
+      </div>
+    </div>
+    <div style="background:#f3e8ff;border:2px solid #9b59b6;border-radius:10px;padding:8px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;font-size:0.93rem;font-weight:bold;color:#6c3483;">
+      <span>📢 Please read this carefully — button unlocks in</span>
+      <div style="flex:1;height:8px;background:#e8d5f5;border-radius:4px;overflow:hidden;">
+        <div id="readaloud-fill" style="height:100%;background:#9b59b6;width:100%;border-radius:4px;"></div>
+      </div>
+      <span id="readaloud-count" style="min-width:28px;text-align:right;font-size:1rem;">6</span><span>s</span>
+    </div>
+    <button id="readaloud-btn" class="ready-btn" onclick="app.showDirections()" disabled style="opacity:0.45;cursor:not-allowed;">⏳ Please wait…</button>
+  </div>
+
+  <!-- ══════════ DIRECTIONS ══════════ -->
+  <div id="directions-screen" class="hidden">
+    <h2 style="text-align:center;color:var(--primary);margin-top:0;margin-bottom:20px;">📋 How It Works</h2>
+
+    <div class="dir-section login-dir">
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">👤 Step 1 — Sign In</h3></div>
+      <p class="dir-text">Choose your name from the list, then enter your student number and tap Sign In. Guest students will also enter their first name.</p>
+    </div>
+    <div class="dir-section form-dir">
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">📖 Step 2 — Answer 20 Questions</h3></div>
+      <p class="dir-text">The quiz has 20 multiple-choice questions. A short story called The Rooftop Garden stays on the screen the whole time. When a question asks about the story, look back at it. Don't guess!</p>
+    </div>
+    <div class="dir-section attempts-dir">
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">✍️ Step 3 — Write RAD Answers</h3></div>
+      <p class="dir-text">After the multiple-choice questions, you will write three RAD answers. Restate the question, answer it in a complete sentence, and add a detail that tells more. Each answer needs at least 10 words.</p>
+    </div>
+    <div class="dir-section read-dir">
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">📖 Reading Timer</h3></div>
+      <p class="dir-text">When each question appears, the answer choices are locked for 12 seconds. Use that time to read the question and choices carefully before you choose.</p>
+      <span class="timer-chip chip-amber">⏱️ 12 second read lock</span>
+    </div>
+    <div class="dir-section timer-dir">
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)" style="border-color:#2ecc71;color:#2ecc71;">🔊</button><h3 style="margin:0;">⏱ Overall Timer</h3></div>
+      <p class="dir-text">A timer runs the whole time. It is not a countdown, and there is no time limit. It only shows your teacher how long you worked.</p>
+      <span class="timer-chip chip-green">📊 No pressure — no time limit!</span>
+    </div>
+
+    <div style="background:#f3e8ff;border:2px solid #9b59b6;border-radius:10px;padding:8px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;font-size:0.93rem;font-weight:bold;color:#6c3483;">
+      <span>📜 Read all directions — button unlocks in</span>
+      <div style="flex:1;height:8px;background:#e8d5f5;border-radius:4px;overflow:hidden;">
+        <div id="instruct-fill" style="height:100%;background:#9b59b6;width:100%;border-radius:4px;"></div>
+      </div>
+      <span id="instruct-count" style="min-width:28px;text-align:right;font-size:1rem;">20</span><span>s</span>
+    </div>
+    <button id="ready-btn" class="ready-btn" onclick="app.showLogin()">⏳ Read the directions above first…</button>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div id="quiz-screen" class="hidden">
+    <div id="tab-warning-banner" class="hidden" style="background:#fde8f0;border:2px solid #f48fb1;border-radius:10px;padding:8px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:0.88rem;font-weight:bold;color:#ad1457;">
+      <span>⚠️ Please stay on this page during the quiz.</span>
+      <button onclick="document.getElementById('tab-warning-banner').classList.add('hidden')" style="background:none;border:none;cursor:pointer;color:#ad1457;font-size:1rem;padding:2px 6px;font-family:inherit;">✕</button>
+    </div>
+    <div id="review-mode-banner" class="hidden" style="background:#fff3cd;border:2px solid #ffc107;border-radius:10px;padding:7px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;font-weight:bold;color:#856404;">
+      <span>🔍 Teacher Review Mode</span>
+      <button onclick="app.exitReviewMode()" style="background:none;border:1px solid #ffc107;border-radius:6px;padding:3px 10px;cursor:pointer;font-family:inherit;font-weight:bold;color:#856404;font-size:0.78rem;">✕ Exit</button>
+    </div>
+
+    <div class="quiz-body">
+      <aside class="story-panel" id="quiz-story-panel" aria-label="Story passage"></aside>
+
+      <div class="quiz-main">
+        <div class="q-badge">
+          <span class="q-badge-pill" id="progress-text">Question 1 of 20</span>
+          <span class="score-badge" id="score-text"></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="timer-row"><div class="timer-display" id="timer-display">00:00</div></div>
+
+        <div class="reading-timer-bar hidden" id="reading-timer-bar">
+          <span>📖 Read carefully — answers unlock in</span>
+          <div class="reading-timer-fill-wrap"><div class="reading-timer-fill" id="reading-fill"></div></div>
+          <span class="reading-timer-count" id="reading-count">12</span><span>s</span>
+        </div>
+
+        <div class="question-header">
+          <button class="speak-btn" id="speak-q-btn" onclick="app.speakQuestion()" title="Read question aloud">🔊</button>
+          <h2 id="question-text"></h2>
+        </div>
+
+        <div class="options-grid" id="answers" role="radiogroup" aria-label="Answer choices"></div>
+
+        <div class="controls">
+          <button id="confirm-btn" class="action-btn hidden" onclick="app.confirmAnswer()">✅ That's My Answer!</button>
+          <button id="next-btn"    class="action-btn hidden" onclick="app.nextQuestion()">Next ➡️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ END (MC RESULTS) ══════════ -->
+  <div id="end-screen" class="hidden">
+    <h2 style="text-align:center;">🎉 Multiple Choice Complete!</h2>
+    <p id="final-score-sub" style="text-align:center;color:#666;margin-bottom:0;"></p>
+    <span id="final-percent"></span>
+    <p id="final-msg" style="font-size:1.3rem;text-align:center;"></p>
+    <div id="continue-written-wrap" style="text-align:center;margin:10px 0 20px;">
+      <button class="lgs-btn" onclick="app.showWrittenScreen()">✍️ Continue to Written RAD Answers →</button>
+    </div>
+    <div id="missed-section" class="missed-list hidden">
+      <h3>📋 Questions to Review:</h3>
+      <div id="missed-items"></div>
+    </div>
+    <div id="review-next-btn" class="hidden" style="text-align:center;margin-top:12px;">
+      <button class="start-btn" style="background:#8e44ad;box-shadow:0 5px 0 #6c3483;" onclick="app._showReviewPicker()">🔍 Review Again</button>
+      <button onclick="app.exitReviewMode()" style="display:block;margin:10px auto 0;background:none;border:none;color:#999;font-size:0.8rem;cursor:pointer;font-family:inherit;text-decoration:underline;">Exit Review Mode</button>
+    </div>
+  </div>
+
+  <!-- ══════════ WRITTEN RAD ANSWERS ══════════ -->
+  <div id="written-screen" class="hidden">
+    <h2 style="text-align:center;color:var(--primary);margin:0 0 6px;">✍️ Written RAD Answers</h2>
+    <div style="text-align:center;margin-bottom:14px;">
+      <span style="display:inline-block;background:#2c3e50;color:#fff;font-family:monospace;font-size:1.1rem;font-weight:bold;padding:6px 18px;border-radius:8px;letter-spacing:2px;">⏱ <span id="written-timer-display">00:00</span></span>
+    </div>
+    <div id="mc-score-reminder" style="background:#eaf7ee;border:2px solid #a5d6a7;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:0.88rem;color:#1e5631;line-height:1.5;"></div>
+
+    <div class="written-body" id="written-body">
+      <aside class="story-panel" id="written-story-panel" aria-label="Story passage"></aside>
+      <div class="written-main">
+        <div class="rad-reminder">
+          <span class="rad-chip rad-r">R · Restate</span>
+          <span class="rad-chip rad-a">A · Answer</span>
+          <span class="rad-chip rad-d">D · Detail</span>
+        </div>
+        <div id="written-prompts-container"></div>
+        <button class="lgs-btn" id="submit-written-btn" onclick="app.submitWrittenResponses()" style="width:100%;margin-top:6px;font-size:1.05rem;padding:16px;">✅ Submit Written Answers</button>
+        <div id="written-submit-error" style="color:#c0392b;font-weight:bold;min-height:22px;margin-top:8px;text-align:center;font-size:0.9rem;"></div>
+      </div>
+    </div>
+
+    <div id="written-success-panel" class="hidden" style="text-align:center;padding:24px 0 10px;">
+      <div style="font-size:3rem;margin-bottom:8px;">🌟</div>
+      <h3 style="color:var(--correct);margin:0 0 10px;">Quiz Complete!</h3>
+      <p style="color:#555;font-size:0.93rem;margin:0 0 24px;line-height:1.6;">Your written RAD answers have been saved. Your teacher will read them and give you feedback.</p>
+      <button class="start-btn" style="background:#27ae60;box-shadow:0 5px 0 #1e8449;" onclick="app.restart()">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- ══════════ GLOBAL PIN MODAL ══════════ -->
+  <div id="pin-modal" class="hidden">
+    <div class="pin-modal-inner">
+      <h3 id="pin-modal-title" style="color:var(--primary);margin:0 0 10px;text-align:center;"></h3>
+      <p  id="pin-modal-msg"   style="text-align:center;color:#555;margin-bottom:14px;font-size:0.95rem;line-height:1.5;"></p>
+      <input type="password" id="pin-modal-input" placeholder="Teacher PIN…" maxlength="10" autocomplete="off"
+             onkeydown="if(event.key==='Enter') app.confirmPinModal()"
+             style="width:100%;padding:11px 14px;border-radius:10px;border:2px solid #ccc;font-size:1.05rem;font-family:inherit;margin-bottom:8px;" />
+      <div id="pin-modal-error" style="color:#c0392b;font-weight:bold;min-height:20px;margin-bottom:10px;font-size:0.9rem;text-align:center;"></div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="action-btn" style="background:#27ae60;box-shadow:0 4px 0 #1e8449;" onclick="app.confirmPinModal()">✅ Confirm</button>
+        <button class="action-btn" style="background:#7f8c8d;box-shadow:0 4px 0 #566573;" onclick="app.cancelPinModal()">✕ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="data/quiz.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
