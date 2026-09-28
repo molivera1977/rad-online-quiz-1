@@ -3,7 +3,7 @@
    Base: Math Module 1 Review (login, read-aloud, timers,
    resume, teacher review) + A World Without Rules Test v2
    (written response screen, story panel, test lock).
-   One unit quiz: 20 MC (scored) then 3 written RAD
+   One unit quiz: 23 MC (scored) then 3 written RAD
    answers (teacher-graded), with a story panel.
    Sheet game:  rad_quiz1  ·  Written tab: rad_quiz1_written
    Test rules: one attempt; retake needs Teacher PIN and
@@ -166,7 +166,7 @@ function applyQuizLock(name) {
   const sub    = btn.querySelector('.form-btn-sub');
   const status = quizStatus(name);
   btn.classList.toggle('done-lock', status === 'done');
-  if (status === 'new')          sub.textContent = '20 questions + 3 written answers';
+  if (status === 'new')          sub.textContent = '23 questions + 3 written answers';
   else if (status === 'written') sub.textContent = '✍️ Written answers next';
   else {
     const rec = getMcRecord(name);
@@ -676,8 +676,8 @@ const app = {
 
     if (reviewMode) {
       bar.classList.add('hidden');
-      document.getElementById('confirm-btn').classList.remove('hidden');
-      if (reviewAutoRun) setTimeout(() => this._autoAnswer(), 300);
+      // Both review modes pick the correct answer; manual waits for Next, auto-run advances itself.
+      setTimeout(() => this._autoAnswer(), 300);
       return;
     }
 

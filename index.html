@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RAD Online Quiz 1</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
@@ -19,7 +19,7 @@
     <div id="welcome-panel" style="text-align:center;padding:10px 0 24px;">
       <p style="font-size:1.05rem;color:#777;margin:0 auto 28px;max-width:420px;line-height:1.8;">
         Show what you know about writing RAD answers.<br>
-        20 multiple-choice questions, then three written RAD answers.
+        23 multiple-choice questions, then three written RAD answers.
       </p>
       <button class="lgs-btn" onclick="app.showReadAloudIntro()">🚀 Let's Get Started!</button>
       <div style="text-align:right;margin-top:10px;">
@@ -74,11 +74,11 @@
         <div class="step-card">
           <span class="step-label">Step 2 — Start the Quiz</span>
           <div class="start-grid" style="grid-template-columns:1fr;">
-            <button class="start-btn" id="btn-start-quiz" onclick="app.attemptStart()">✍️ RAD Online Quiz 1<span class="form-btn-sub">20 questions + 3 written answers</span></button>
+            <button class="start-btn" id="btn-start-quiz" onclick="app.attemptStart()">✍️ RAD Online Quiz 1<span class="form-btn-sub">23 questions + 3 written answers</span></button>
           </div>
         </div>
         <div style="background:#f0f4ff;border:2px solid #a9c4f5;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:0.88rem;color:#2c3e50;line-height:1.6;">
-          📋 <strong>Rules:</strong> The quiz has <strong>20 multiple-choice questions</strong>, then <strong>3 written RAD answers</strong>.
+          📋 <strong>Rules:</strong> The quiz has <strong>23 multiple-choice questions</strong>, then <strong>3 written RAD answers</strong>.
           You take the quiz <strong>one time</strong>. Your teacher can allow a retake.
         </div>
       </div>
@@ -125,8 +125,8 @@
       <p class="dir-text">Choose your name from the list, then enter your student number and tap Sign In. Guest students will also enter their first name.</p>
     </div>
     <div class="dir-section form-dir">
-      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">📖 Step 2 — Answer 20 Questions</h3></div>
-      <p class="dir-text">The quiz has 20 multiple-choice questions. A short story called The Rooftop Garden stays on the screen the whole time. When a question asks about the story, look back at it. Don't guess!</p>
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">📖 Step 2 — Answer 23 Questions</h3></div>
+      <p class="dir-text">The quiz has 23 multiple-choice questions. A short story called The Rooftop Garden stays on the screen the whole time. When a question asks about the story, look back at it. Don't guess!</p>
     </div>
     <div class="dir-section attempts-dir">
       <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">✍️ Step 3 — Write RAD Answers</h3></div>
@@ -169,7 +169,7 @@
 
       <div class="quiz-main">
         <div class="q-badge">
-          <span class="q-badge-pill" id="progress-text">Question 1 of 20</span>
+          <span class="q-badge-pill" id="progress-text">Question 1 of 23</span>
           <span class="score-badge" id="score-text"></span>
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -263,7 +263,7 @@
 
 </div>
 
-<script src="data/quiz.js"></script>
-<script src="script.js"></script>
+<script src="data/quiz.js?v=2"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>
