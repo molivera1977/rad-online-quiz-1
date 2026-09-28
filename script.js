@@ -1,17 +1,18 @@
 /* ═══════════════════════════════════════════════════════
-   RAD ONLINE QUIZ 1 · script.js
+   R.A.D. ONLINE QUIZ 1 · script.js
    Base: Math Module 1 Review (login, read-aloud, timers,
    resume, teacher review) + A World Without Rules Test v2
    (written response screen, story panel, test lock).
-   One unit quiz: 23 MC (scored) then 3 written RAD
+   One unit quiz: 23 MC (scored) then 3 written R.A.D.
    answers (teacher-graded), with a story panel.
    Sheet game:  rad_quiz1  ·  Written tab: rad_quiz1_written
    Test rules: one attempt; retake needs Teacher PIN and
-   gets a new session ID labeled "RAD Online Quiz 1 — Retake".
+   gets a new session ID labeled "R.A.D. Online Quiz 1 — Retake".
    PIN: 9377 (Teacher override)
 ═══════════════════════════════════════════════════════ */
 
 /* ── CONFIG ─────────────────────────────────────────── */
+const QUIZ_OPEN     = false;   // false = students locked out; only Teacher Access works. Set true to open.
 const INSTRUCT_SECS = 20;
 const READ_SECS     = 12;
 const MIN_WORDS     = 10;
@@ -21,7 +22,7 @@ const WRITTEN_KEY   = 'radq1_written_v1';
 const DRAFT_KEY     = 'radq1_written_draft_v1';
 const RETAKE_KEY    = 'radq1_retake_v1';
 
-const QUIZ_LABEL   = 'RAD Online Quiz 1';
+const QUIZ_LABEL   = 'R.A.D. Online Quiz 1';
 const GAME         = 'rad_quiz1';
 const WRITTEN_GAME = 'rad_quiz1_written';
 function newSessionId() { return 'RADQ1-' + Math.random().toString(36).slice(2, 9).toUpperCase(); }
@@ -371,6 +372,7 @@ const app = {
 
   /* ── READ ALOUD INTRO ── */
   showReadAloudIntro() {
+    if (!QUIZ_OPEN) return;
     document.getElementById('welcome-panel').classList.add('hidden');
     this.show('readaloud-screen');
     const btn   = document.getElementById('readaloud-btn');
@@ -474,7 +476,7 @@ const app = {
       this.showWrittenScreen();
     } else {
       this.showPinModal(
-        '🔓 Retake RAD Online Quiz 1',
+        '🔓 Retake R.A.D. Online Quiz 1',
         `${getFirstName(this.studentName)} already finished the quiz. Enter Teacher PIN to allow a retake. The first score stays saved.`,
         () => {
           const name = this.studentName;
@@ -819,7 +821,7 @@ const app = {
 
     submitScoreFinal();
 
-    let msg = "Keep practicing your RAD answers! 📚";
+    let msg = "Keep practicing your R.A.D. answers! 📚";
     if (pct === 100)    msg = "⭐ PERFECT SCORE! ⭐";
     else if (pct >= 90) msg = "Outstanding Work! 🌟";
     else if (pct >= 80) msg = "Great Job! 👏";
@@ -852,7 +854,7 @@ const app = {
     if (pct >= 70) startConfetti(pct);
   },
 
-  /* ── WRITTEN RAD ANSWERS ── */
+  /* ── WRITTEN R.A.D. ANSWERS ── */
   showWrittenScreen() {
     stopConfetti();
     this.show('written-screen');
@@ -862,8 +864,8 @@ const app = {
     const reminder = document.getElementById('mc-score-reminder');
     reminder.classList.remove('hidden');
     reminder.innerHTML = this._lastFinishedScore
-      ? `📊 Your multiple-choice score: <strong>${this._lastFinishedScore.score}/${this._lastFinishedScore.total} (${this._lastFinishedScore.pct}%)</strong> — already saved. Now write a RAD answer for each question below.`
-      : 'Write a RAD answer for each question below.';
+      ? `📊 Your multiple-choice score: <strong>${this._lastFinishedScore.score}/${this._lastFinishedScore.total} (${this._lastFinishedScore.pct}%)</strong> — already saved. Now write an R.A.D. answer for each question below.`
+      : 'Write an R.A.D. answer for each question below.';
 
     document.getElementById('written-body').classList.remove('hidden');
     const container = document.getElementById('written-prompts-container');
@@ -882,7 +884,7 @@ const app = {
         <div class="written-prompt-text" id="prompt-text-${p.id}">${escapeHtml(p.prompt)}</div>
         <div class="written-guidance">💡 ${escapeHtml(p.guidance)}</div>
         <textarea class="written-textarea" id="textarea-${p.id}" spellcheck="false"
-                  placeholder="Write your RAD answer here…"
+                  placeholder="Write your R.A.D. answer here…"
                   oninput="app._updateWordCount('${p.id}', this); app._autosaveDraft()"></textarea>
         <div class="word-count-row">Words: <span class="word-count-val" id="wc-${p.id}">0</span><span style="color:#aaa;font-size:0.8rem;">&nbsp;/ ${MIN_WORDS} minimum</span></div>`;
       container.appendChild(card);
@@ -1133,3 +1135,17 @@ function stopConfetti() {
 
 /* ── BOOT ────────────────────────────────────────────── */
 app.init();
+
+/* ── CLOSED-TO-STUDENTS LOCK ────────────────────────── */
+(function applyQuizLock() {
+  if (QUIZ_OPEN) return;
+  const btn = document.querySelector('.lgs-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.classList.add('locked');
+  btn.textContent = '🔒 Not Open Yet';
+  const note = document.createElement('p');
+  note.className = 'locked-note';
+  note.textContent = "Mr. O will let you know when this quiz is ready!";
+  btn.insertAdjacentElement('afterend', note);
+})();

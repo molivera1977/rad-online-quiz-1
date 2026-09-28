@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RAD Online Quiz 1</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <title>R.A.D. Online Quiz 1</title>
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
 
 <div class="container">
-  <h1>✍️ RAD Online Quiz 1</h1>
+  <h1>✍️ R.A.D. Online Quiz 1</h1>
   <p class="welcome-sub">Restate · Answer · Detail</p>
 
   <!-- ══════════ START SCREEN ══════════ -->
@@ -18,8 +18,8 @@
 
     <div id="welcome-panel" style="text-align:center;padding:10px 0 24px;">
       <p style="font-size:1.05rem;color:#777;margin:0 auto 28px;max-width:420px;line-height:1.8;">
-        Show what you know about writing RAD answers.<br>
-        23 multiple-choice questions, then three written RAD answers.
+        Show what you know about writing R.A.D. answers.<br>
+        23 multiple-choice questions, then three written R.A.D. answers.
       </p>
       <button class="lgs-btn" onclick="app.showReadAloudIntro()">🚀 Let's Get Started!</button>
       <div style="text-align:right;margin-top:10px;">
@@ -74,11 +74,11 @@
         <div class="step-card">
           <span class="step-label">Step 2 — Start the Quiz</span>
           <div class="start-grid" style="grid-template-columns:1fr;">
-            <button class="start-btn" id="btn-start-quiz" onclick="app.attemptStart()">✍️ RAD Online Quiz 1<span class="form-btn-sub">23 questions + 3 written answers</span></button>
+            <button class="start-btn" id="btn-start-quiz" onclick="app.attemptStart()">✍️ R.A.D. Online Quiz 1<span class="form-btn-sub">23 questions + 3 written answers</span></button>
           </div>
         </div>
         <div style="background:#f0f4ff;border:2px solid #a9c4f5;border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:0.88rem;color:#2c3e50;line-height:1.6;">
-          📋 <strong>Rules:</strong> The quiz has <strong>23 multiple-choice questions</strong>, then <strong>3 written RAD answers</strong>.
+          📋 <strong>Rules:</strong> The quiz has <strong>23 multiple-choice questions</strong>, then <strong>3 written R.A.D. answers</strong>.
           You take the quiz <strong>one time</strong>. Your teacher can allow a retake.
         </div>
       </div>
@@ -129,8 +129,8 @@
       <p class="dir-text">The quiz has 23 multiple-choice questions. A short story called The Rooftop Garden stays on the screen the whole time. When a question asks about the story, look back at it. Don't guess!</p>
     </div>
     <div class="dir-section attempts-dir">
-      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">✍️ Step 3 — Write RAD Answers</h3></div>
-      <p class="dir-text">After the multiple-choice questions, you will write three RAD answers. Restate the question, answer it in a complete sentence, and add a detail that tells more. Each answer needs at least 10 words.</p>
+      <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">✍️ Step 3 — Write R.A.D. Answers</h3></div>
+      <p class="dir-text">After the multiple-choice questions, you will write three R.A.D. answers. Restate the question, answer it in a complete sentence, and add a detail that tells more. Each answer needs at least 10 words.</p>
     </div>
     <div class="dir-section read-dir">
       <div class="dir-row"><button class="speak-btn" onclick="speakDir(this)">🔊</button><h3 style="margin:0;">📖 Reading Timer</h3></div>
@@ -203,7 +203,7 @@
     <span id="final-percent"></span>
     <p id="final-msg" style="font-size:1.3rem;text-align:center;"></p>
     <div id="continue-written-wrap" style="text-align:center;margin:10px 0 20px;">
-      <button class="lgs-btn" onclick="app.showWrittenScreen()">✍️ Continue to Written RAD Answers →</button>
+      <button class="lgs-btn" onclick="app.showWrittenScreen()">✍️ Continue to Written R.A.D. Answers →</button>
     </div>
     <div id="missed-section" class="missed-list hidden">
       <h3>📋 Questions to Review:</h3>
@@ -215,9 +215,9 @@
     </div>
   </div>
 
-  <!-- ══════════ WRITTEN RAD ANSWERS ══════════ -->
+  <!-- ══════════ WRITTEN R.A.D. ANSWERS ══════════ -->
   <div id="written-screen" class="hidden">
-    <h2 style="text-align:center;color:var(--primary);margin:0 0 6px;">✍️ Written RAD Answers</h2>
+    <h2 style="text-align:center;color:var(--primary);margin:0 0 6px;">✍️ Written R.A.D. Answers</h2>
     <div style="text-align:center;margin-bottom:14px;">
       <span style="display:inline-block;background:#2c3e50;color:#fff;font-family:monospace;font-size:1.1rem;font-weight:bold;padding:6px 18px;border-radius:8px;letter-spacing:2px;">⏱ <span id="written-timer-display">00:00</span></span>
     </div>
@@ -240,7 +240,7 @@
     <div id="written-success-panel" class="hidden" style="text-align:center;padding:24px 0 10px;">
       <div style="font-size:3rem;margin-bottom:8px;">🌟</div>
       <h3 style="color:var(--correct);margin:0 0 10px;">Quiz Complete!</h3>
-      <p style="color:#555;font-size:0.93rem;margin:0 0 24px;line-height:1.6;">Your written RAD answers have been saved. Your teacher will read them and give you feedback.</p>
+      <p style="color:#555;font-size:0.93rem;margin:0 0 24px;line-height:1.6;">Your written R.A.D. answers have been saved. Your teacher will read them and give you feedback.</p>
       <button class="start-btn" style="background:#27ae60;box-shadow:0 5px 0 #1e8449;" onclick="app.restart()">🏠 Home</button>
     </div>
   </div>
@@ -263,7 +263,7 @@
 
 </div>
 
-<script src="data/quiz.js?v=3"></script>
-<script src="script.js?v=3"></script>
+<script src="data/quiz.js?v=5"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>

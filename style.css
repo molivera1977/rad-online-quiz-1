@@ -671,3 +671,8 @@ body.story-active .container { max-width: 1160px; }
 
 /* Quiz-card status */
 .start-btn.done-lock { background: #7f8c8d; box-shadow: 0 5px 0 #566573; }
+
+/* Closed-to-students lock (same as Math Module 1 Review) */
+.lgs-btn.locked,
+.lgs-btn.locked:hover { background: #b8b8b8; box-shadow: 0 5px 0 #8f8f8f; cursor: not-allowed; transform: none; filter: grayscale(1); }
+.locked-note { color: #888; font-size: 0.95rem; margin: 14px 0 0; }
