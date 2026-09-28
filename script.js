@@ -311,6 +311,10 @@ function speakWrittenPrompt(btn, promptId) {
   speakSpans(btn, p, 0.92);
 }
 
+function speakParagraph(btn) {
+  speakSpans(btn, btn.closest('.story-para').querySelector('.para-text'), 0.9);
+}
+
 function speakPassage(btn) {
   const scroll = btn.closest('.story-panel').querySelector('.story-scroll');
   speakSpans(btn, scroll, 0.9);
@@ -322,7 +326,7 @@ function renderStoryPanel(panelId) {
   const passage = window.RAD_PASSAGE;
   if (!passage) { panel.innerHTML = ''; document.body.classList.remove('story-active'); return; }
   const paras = passage.paragraphs.map((t, i) =>
-    `<p class="story-para"><span class="para-num" aria-label="Paragraph ${i + 1}">${i + 1}</span><span class="para-text">${wrapWords(escapeHtml(t))}</span></p>`
+    `<p class="story-para"><button class="speak-btn para-speak-btn" onclick="speakParagraph(this)" title="Read paragraph ${i + 1} aloud">🔊</button><span class="para-num" aria-label="Paragraph ${i + 1}">${i + 1}</span><span class="para-text">${wrapWords(escapeHtml(t))}</span></p>`
   ).join('');
   panel.innerHTML = `
     <div class="story-panel-header">

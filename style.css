@@ -639,6 +639,7 @@ body.story-active .container { max-width: 1160px; }
 }
 .story-para { display: flex; gap: 10px; margin: 0 0 12px; line-height: 1.75; font-size: 0.98rem; }
 .story-para:last-child { margin-bottom: 0; }
+.para-speak-btn { font-size: 0.9rem; min-width: 34px; padding: 3px 6px; align-self: flex-start; background: #fff; }
 .para-num {
   flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff;
   font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-top: 2px;
