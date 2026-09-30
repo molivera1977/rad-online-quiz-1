@@ -379,6 +379,7 @@ const app = {
     ['start-screen','readaloud-screen','directions-screen','quiz-screen','end-screen','written-screen']
       .forEach(s => document.getElementById(s).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
+    window.scrollTo(0, 0);   // every new screen starts at the top
     if (id !== 'quiz-screen' && id !== 'written-screen') document.body.classList.remove('story-active');
     stopActiveSpeech();
   },
