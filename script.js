@@ -57,6 +57,9 @@ function postScore(done) {
       tabSwitches:    tabSwitchCount,
       minSecs:        150,
       wrongQuestions: (app.missedQuestions || []).map(m => `[${m.id}] ${m.q}`).join(' | '),
+      startedAt:      app.startedAt || '',
+      finishedAt:     app.finishedAt || '',
+      events:         JSON.stringify(app.events || []),
       timestamp:      new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
     })
   }).catch(() => {});
@@ -76,6 +79,9 @@ function submitWrittenToSheet(w1, w2, w3, elapsedSeconds) {
       name:      app.studentName || 'Unknown',
       w1, w2, w3,
       elapsed:   elapsedStr,
+      // no startedAt/finishedAt/events here: the written sheet is a fixed
+      // 7-column shape and handleWritten ignores extra keys. The chronology
+      // for this attempt rides on the quiz row, which shares app.events.
       timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
     })
   }).catch(() => {});
@@ -332,6 +338,21 @@ function renderStoryPanel(panelId) {
 /* ══════════════════════════════════════════════════════
    APP OBJECT
 ══════════════════════════════════════════════════════ */
+/* ── SESSION EVENT LOG ───────────────────────────────
+   start · leave · return · resume · close · finish, each with the
+   on-task clock. elapsed is time ON TASK: the timer pauses while the
+   page is hidden and counts ticks, so a slept device cannot inflate it. */
+function logEvent(kind, extra) {
+  if (!app.events) app.events = [];
+  app.events.push(Object.assign({
+    at: new Date().toISOString(),
+    e:  kind,
+    q:  (app.currentIndex || 0) + 1,
+    on: app.timerSeconds || 0
+  }, extra || {}));
+  if (app.events.length > 200) app.events.splice(0, app.events.length - 200);
+}
+
 const app = {
 
   /* ── state ── */
@@ -524,6 +545,8 @@ const app = {
 
   /* ── START SESSION ── */
   startSession(retake) {
+    this.events = []; this.startedAt = new Date().toISOString();
+    this.finishedAt = '';
     localStorage.removeItem(STORAGE_KEY);
     tabSwitchCount = 0;
     document.getElementById('tab-warning-banner').classList.add('hidden');
@@ -555,6 +578,7 @@ const app = {
 
     this.show('quiz-screen');
     renderStoryPanel('quiz-story-panel');
+    logEvent('start');
     this.startTimer();
     this.renderQuestion();
   },
@@ -586,6 +610,9 @@ const app = {
     this.score           = saved.score;
     this.missedQuestions = saved.missedQuestions || [];
     this.timerSeconds    = saved.timerSeconds || 0;
+    this.events = saved.events || [];
+    this.startedAt = saved.startedAt || new Date().toISOString();
+    logEvent('resume');
     this.show('quiz-screen');
     renderStoryPanel('quiz-story-panel');
     this.startTimer();
@@ -602,7 +629,9 @@ const app = {
       currentIndex:    this.currentIndex,
       score:           this.score,
       missedQuestions: this.missedQuestions,
-      timerSeconds:    this.timerSeconds
+      timerSeconds:    this.timerSeconds,
+      events: this.events,
+      startedAt: this.startedAt
     }));
   },
 
@@ -797,6 +826,7 @@ const app = {
 
   /* ── FINISH MULTIPLE CHOICE ── */
   _finishSession() {
+    this.finishedAt = new Date().toISOString(); logEvent('finish');
     this.stopTimerEngine();
     localStorage.removeItem(STORAGE_KEY);
 
@@ -1070,18 +1100,21 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     if (!app.timerOn) return;
     tabSwitchCount++;
+    logEvent('leave');
     app.stopTimerEngine();
     app.saveProgress();
     app._wasTimerRunning = true;
   } else {
     if (!app._wasTimerRunning) return;
     app._wasTimerRunning = false;
+    logEvent('return');
     document.getElementById('tab-warning-banner').classList.remove('hidden');
     app.startTimer();
   }
 });
 
 window.addEventListener('beforeunload', () => {
+  if (app.timerOn) logEvent('close');
   if (app.timerOn) app.saveProgress();
 });
 
