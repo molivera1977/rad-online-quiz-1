@@ -260,6 +260,50 @@ function addHighlightFallback(u, spans) {
   hlTimer = setTimeout(step, 500);
 }
 
+/* ── READ-ALOUD INTRO SPEAKS ITSELF ─────────────────
+   Marcos 10/6: the "Read Aloud is Available!" screen announces itself
+   the moment it opens — no reading, no button. The click on "Let's Get
+   Started!" is the user gesture the browser needs. The icons are said
+   as words, and each word lights up as it is read. Leaving the screen
+   (app.show) cancels the speech. */
+const INTRO_SAY = { '🔊': 'the speaker button', '⏹': 'the stop button', '—': ',' };
+function speakReadAloudIntro() {
+  stopActiveSpeech();
+  const els = Array.from(document.querySelectorAll('#readaloud-screen .ra-read'));
+  els.forEach(el => { if (!el.querySelector('.wrd')) el.innerHTML = wrapWords(el.innerHTML); });
+  const words = [], wordSpan = [], spans = [];
+  els.forEach(el => {
+    const parts = [];
+    el.querySelectorAll('.wrd').forEach(sp => {
+      const t = sp.textContent.replace(/\uFE0F/g, '').trim();
+      const key = t.replace(/[.!?,]+$/, ''), punct = t.slice(key.length);   // "🔊." → icon + "."
+      let say = INTRO_SAY[key] != null ? INTRO_SAY[key] + punct : (/[A-Za-z0-9]/.test(t) ? t : '');
+      if (!say) return;
+      if (say === ',') { if (parts.length) parts[parts.length - 1] += ','; return; }
+      if (/^the /.test(say) && /^(every|each)$/i.test(parts[parts.length - 1] || '')) say = say.slice(4);
+      spans.push(sp);
+      say.split(' ').forEach(w => { parts.push(w); words.push(w); wordSpan.push(sp); });
+    });
+    if (parts.length && !/[.!?,]$/.test(parts[parts.length - 1])) parts[parts.length - 1] += '.';
+    el._spoken = parts.join(' ');
+  });
+  if (!words.length) return;
+  const u = new SpeechSynthesisUtterance(els.map(el => el._spoken).join(' '));
+  u.lang = 'en-US';
+  // follows the student's Reading speed setting on sites that have one
+  u.rate = 0.92 * ((typeof READ_SPEEDS !== 'undefined' && typeof readSpeed !== 'undefined' && READ_SPEEDS[readSpeed]) ? READ_SPEEDS[readSpeed].factor : 1);
+  let i = 0;
+  u.onboundary = e => {
+    if (e.name !== 'word') return;
+    spans.forEach(sp => sp.classList.remove('hl'));
+    if (wordSpan[i]) wordSpan[i].classList.add('hl');
+    i++;
+  };
+  u.onend = () => spans.forEach(sp => sp.classList.remove('hl'));
+  addHighlightFallback(u, spans);
+  window.speechSynthesis.speak(u);
+}
+
 function wrapWords(html) {
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
@@ -406,6 +450,7 @@ const app = {
     if (!QUIZ_OPEN) return;
     document.getElementById('welcome-panel').classList.add('hidden');
     this.show('readaloud-screen');
+    setTimeout(speakReadAloudIntro, 150);   // announces itself (show() just cancelled any speech)
     const btn   = document.getElementById('readaloud-btn');
     const fill  = document.getElementById('readaloud-fill');
     const count = document.getElementById('readaloud-count');
