@@ -285,6 +285,8 @@ function speakReadAloudIntro() {
       if (!say) return;
       if (say === ',') { if (parts.length) parts[parts.length - 1] += ','; return; }
       if (/^the /.test(say) && /^(every|each)$/i.test(parts[parts.length - 1] || '')) say = say.slice(4);
+      // past-tense "read" ("is read aloud") must sound like "red", not "reed" (Marcos 10/6)
+      if (/^read[.!?,]?$/i.test(say) && /^(is|was|are|were|be|been|being)$/i.test(parts[parts.length - 1] || '')) say = say.replace(/^read/i, 'red');
       spans.push(sp);
       say.split(' ').forEach(w => { parts.push(w); wordSpan.push(sp); });
     });
