@@ -268,48 +268,95 @@ function addHighlightFallback(u, spans) {
    (app.show) cancels the speech. */
 const INTRO_SAY = { '🔊': 'the speaker button', '⏹': 'the stop button', '—': ',' };
 const INTRO_RATE = 0.82;   // Marcos 10/6: 0.92 ran ahead of the highlight
-let introToken = 0;
+let introToken = 0, introTimer = null;
+let introMsPerChar = null, introMsPerWord = null;   // learned from this device's voice
 function speakReadAloudIntro() {
   stopActiveSpeech();
+  clearTimeout(introTimer);
   const screen = document.getElementById('readaloud-screen');
   const els = Array.from(screen.querySelectorAll('.ra-read'));
   els.forEach(el => { if (!el.querySelector('.wrd')) el.innerHTML = wrapWords(el.innerHTML); });
-  // One piece per box (heading, intro, each card): the highlight lines
-  // back up with the voice at the start of every piece instead of drifting.
-  const pieces = els.map(el => {
-    const parts = [], wordSpan = [], spans = [];
+  // One piece per SENTENCE (Marcos 10/6: the end of a long sentence lost its
+  // highlight). Each piece = the words to say + the on-screen word each one lights.
+  const pieces = [];
+  els.forEach(el => {
+    let words = [], wordSpan = [];
+    const flush = () => { if (words.length) pieces.push({ words, wordSpan }); words = []; wordSpan = []; };
     el.querySelectorAll('.wrd').forEach(sp => {
       const t = sp.textContent.replace(/\uFE0F/g, '').trim();
       const key = t.replace(/[.!?,]+$/, ''), punct = t.slice(key.length);   // "🔊." → icon + "."
       let say = INTRO_SAY[key] != null ? INTRO_SAY[key] + punct : (/[A-Za-z0-9]/.test(t) ? t : '');
       if (!say) return;
-      if (say === ',') { if (parts.length) parts[parts.length - 1] += ','; return; }
-      if (/^the /.test(say) && /^(every|each)$/i.test(parts[parts.length - 1] || '')) say = say.slice(4);
+      if (say === ',') { if (words.length) words[words.length - 1] += ','; return; }
+      if (/^the /.test(say) && /^(every|each)$/i.test(words[words.length - 1] || '')) say = say.slice(4);
       // past-tense "read" ("is read aloud") must sound like "red", not "reed" (Marcos 10/6)
-      if (/^read[.!?,]?$/i.test(say) && /^(is|was|are|were|be|been|being)$/i.test(parts[parts.length - 1] || '')) say = say.replace(/^read/i, 'red');
-      spans.push(sp);
-      say.split(' ').forEach(w => { parts.push(w); wordSpan.push(sp); });
+      if (/^read[.!?,]?$/i.test(say) && /^(is|was|are|were|be|been|being)$/i.test(words[words.length - 1] || '')) say = say.replace(/^read/i, 'red');
+      say.split(' ').forEach(w => { words.push(w); wordSpan.push(sp); });
+      if (/[.!?]$/.test(say)) flush();
     });
-    if (parts.length && !/[.!?,]$/.test(parts[parts.length - 1])) parts[parts.length - 1] += '.';
-    return { text: parts.join(' '), wordSpan, spans };
-  }).filter(p => p.text);
+    if (words.length && !/[.!?,]$/.test(words[words.length - 1])) words[words.length - 1] += '.';
+    flush();
+  });
   const factor = (typeof READ_SPEEDS !== 'undefined' && typeof readSpeed !== 'undefined' && READ_SPEEDS[readSpeed]) ? READ_SPEEDS[readSpeed].factor : 1;
+  const rate = INTRO_RATE * factor;
   const token = ++introToken;
+  const live = () => token === introToken && !screen.classList.contains('hidden');
   const sayPiece = k => {
-    // stop for good once the student leaves the screen
-    if (token !== introToken || k >= pieces.length || screen.classList.contains('hidden')) return;
+    if (!live() || k >= pieces.length) return;
     const p = pieces[k];
-    const u = new SpeechSynthesisUtterance(p.text);
-    u.lang = 'en-US'; u.rate = INTRO_RATE * factor;
-    let i = 0;
+    const text = p.words.join(' ');
+    const starts = []; let pos = 0;
+    p.words.forEach(w => { starts.push(pos); pos += w.length + 1; });
+    const lit = new Set(p.wordSpan);
+    let idx = -1, lastHeard = 0, startedAt = 0, viaVoice = false;
+    const mark = j => {
+      j = Math.max(0, Math.min(j, p.words.length - 1));
+      if (j === idx) return;
+      idx = j;
+      lit.forEach(sp => sp.classList.remove('hl'));
+      p.wordSpan[j].classList.add('hl');
+    };
+    // Watchdog: when the voice goes quiet about word positions (some voices
+    // never report them, Chrome sometimes stops partway), step on at a
+    // speaking pace — never past the last word, which stays lit until the end.
+    // Pace comes from how long this voice really took on the sentences before
+    // (first sentence: a guess), so the highlight keeps up on any voice.
+    // (a hair quick on purpose: the last word stays lit until the voice ends, so early is safe, late is not)
+    const wordMs = w => introMsPerChar ? 0.92 * (w.length + 1) * introMsPerChar : (120 + w.replace(/[^A-Za-z0-9]/g, '').length * 55) / rate;
+    const tick = () => {
+      if (!live()) return;
+      // while the voice is reporting words it leads; step in only once it has gone quiet
+      const base = wordMs(p.words[idx] || ''), quiet = Date.now() - lastHeard;
+      const avg = Math.max(base, introMsPerWord || 0);   // a normal pause between reported words is never "quiet"
+      if (idx >= 0 && viaVoice && quiet > avg * 1.8) {
+        const n = Math.max(1, Math.floor(quiet / avg));   // catch up the words said while it was quiet
+        viaVoice = false; mark(idx + n); lastHeard += n * avg;
+      } else if (idx >= 0 && !viaVoice && quiet > base) {
+        mark(idx + 1); lastHeard = Math.min(Date.now(), lastHeard + base);   // keep exact time between steps
+      }
+      introTimer = setTimeout(tick, 60);
+    };
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = rate;
+    u.onstart = () => { startedAt = lastHeard = Date.now(); mark(0); clearTimeout(introTimer); tick(); };
     u.onboundary = e => {
       if (e.name !== 'word') return;
-      p.spans.forEach(sp => sp.classList.remove('hl'));
-      if (p.wordSpan[i]) p.wordSpan[i].classList.add('hl');
-      i++;
+      let j = 0;
+      while (j + 1 < starts.length && starts[j + 1] <= e.charIndex) j++;
+      mark(j); lastHeard = Date.now(); viaVoice = true;
     };
-    u.onend = () => { p.spans.forEach(sp => sp.classList.remove('hl')); setTimeout(() => sayPiece(k + 1), 250); };
-    addHighlightFallback(u, p.spans);
+    u.onend = () => {
+      clearTimeout(introTimer);
+      const took = Date.now() - startedAt;
+      if (startedAt && live() && took > 300) {   // learn the voice's real speed (skip cancelled/odd pieces)
+        const perChar = took / (text.length + 1);
+        introMsPerChar = introMsPerChar ? (introMsPerChar + perChar) / 2 : perChar;
+        const perWord = took / p.words.length;
+        introMsPerWord = introMsPerWord ? (introMsPerWord + perWord) / 2 : perWord;
+      }
+      lit.forEach(sp => sp.classList.remove('hl'));
+      if (live()) introTimer = setTimeout(() => sayPiece(k + 1), 250);
+    };
     window.speechSynthesis.speak(u);
   };
   sayPiece(0);
