@@ -267,13 +267,17 @@ function addHighlightFallback(u, spans) {
    as words, and each word lights up as it is read. Leaving the screen
    (app.show) cancels the speech. */
 const INTRO_SAY = { '🔊': 'the speaker button', '⏹': 'the stop button', '—': ',' };
+const INTRO_RATE = 0.82;   // Marcos 10/6: 0.92 ran ahead of the highlight
+let introToken = 0;
 function speakReadAloudIntro() {
   stopActiveSpeech();
-  const els = Array.from(document.querySelectorAll('#readaloud-screen .ra-read'));
+  const screen = document.getElementById('readaloud-screen');
+  const els = Array.from(screen.querySelectorAll('.ra-read'));
   els.forEach(el => { if (!el.querySelector('.wrd')) el.innerHTML = wrapWords(el.innerHTML); });
-  const words = [], wordSpan = [], spans = [];
-  els.forEach(el => {
-    const parts = [];
+  // One piece per box (heading, intro, each card): the highlight lines
+  // back up with the voice at the start of every piece instead of drifting.
+  const pieces = els.map(el => {
+    const parts = [], wordSpan = [], spans = [];
     el.querySelectorAll('.wrd').forEach(sp => {
       const t = sp.textContent.replace(/\uFE0F/g, '').trim();
       const key = t.replace(/[.!?,]+$/, ''), punct = t.slice(key.length);   // "🔊." → icon + "."
@@ -282,26 +286,31 @@ function speakReadAloudIntro() {
       if (say === ',') { if (parts.length) parts[parts.length - 1] += ','; return; }
       if (/^the /.test(say) && /^(every|each)$/i.test(parts[parts.length - 1] || '')) say = say.slice(4);
       spans.push(sp);
-      say.split(' ').forEach(w => { parts.push(w); words.push(w); wordSpan.push(sp); });
+      say.split(' ').forEach(w => { parts.push(w); wordSpan.push(sp); });
     });
     if (parts.length && !/[.!?,]$/.test(parts[parts.length - 1])) parts[parts.length - 1] += '.';
-    el._spoken = parts.join(' ');
-  });
-  if (!words.length) return;
-  const u = new SpeechSynthesisUtterance(els.map(el => el._spoken).join(' '));
-  u.lang = 'en-US';
-  // follows the student's Reading speed setting on sites that have one
-  u.rate = 0.92 * ((typeof READ_SPEEDS !== 'undefined' && typeof readSpeed !== 'undefined' && READ_SPEEDS[readSpeed]) ? READ_SPEEDS[readSpeed].factor : 1);
-  let i = 0;
-  u.onboundary = e => {
-    if (e.name !== 'word') return;
-    spans.forEach(sp => sp.classList.remove('hl'));
-    if (wordSpan[i]) wordSpan[i].classList.add('hl');
-    i++;
+    return { text: parts.join(' '), wordSpan, spans };
+  }).filter(p => p.text);
+  const factor = (typeof READ_SPEEDS !== 'undefined' && typeof readSpeed !== 'undefined' && READ_SPEEDS[readSpeed]) ? READ_SPEEDS[readSpeed].factor : 1;
+  const token = ++introToken;
+  const sayPiece = k => {
+    // stop for good once the student leaves the screen
+    if (token !== introToken || k >= pieces.length || screen.classList.contains('hidden')) return;
+    const p = pieces[k];
+    const u = new SpeechSynthesisUtterance(p.text);
+    u.lang = 'en-US'; u.rate = INTRO_RATE * factor;
+    let i = 0;
+    u.onboundary = e => {
+      if (e.name !== 'word') return;
+      p.spans.forEach(sp => sp.classList.remove('hl'));
+      if (p.wordSpan[i]) p.wordSpan[i].classList.add('hl');
+      i++;
+    };
+    u.onend = () => { p.spans.forEach(sp => sp.classList.remove('hl')); setTimeout(() => sayPiece(k + 1), 250); };
+    addHighlightFallback(u, p.spans);
+    window.speechSynthesis.speak(u);
   };
-  u.onend = () => spans.forEach(sp => sp.classList.remove('hl'));
-  addHighlightFallback(u, spans);
-  window.speechSynthesis.speak(u);
+  sayPiece(0);
 }
 
 function wrapWords(html) {
