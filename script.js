@@ -429,6 +429,12 @@ function speakWrittenPrompt(btn, promptId) {
   speakSpans(btn, p, 0.92);
 }
 
+function speakGuidance(btn) {
+  const t = btn.closest('.written-guidance').querySelector('.guidance-text');
+  if (!t.querySelector('.wrd')) t.innerHTML = wrapWords(t.innerHTML);
+  speakSpans(btn, t, 0.92);
+}
+
 function speakParagraph(btn) {
   speakSpans(btn, btn.closest('.story-para').querySelector('.para-text'), 0.9);
 }
@@ -1027,7 +1033,10 @@ const app = {
         </div>
         <div class="written-prompt-type">${escapeHtml(p.type)}</div>
         <div class="written-prompt-text" id="prompt-text-${p.id}">${escapeHtml(p.prompt)}</div>
-        <div class="written-guidance">💡 ${escapeHtml(p.guidance)}</div>
+        <div class="written-guidance">
+          <button class="speak-btn guidance-speak-btn" onclick="speakGuidance(this)" title="Read this hint aloud">🔊</button>
+          <span>💡 <span class="guidance-text">${escapeHtml(p.guidance)}</span></span>
+        </div>
         <textarea class="written-textarea" id="textarea-${p.id}" spellcheck="false"
                   placeholder="Write your R.A.D. answer here…"
                   oninput="app._updateWordCount('${p.id}', this); app._autosaveDraft()"></textarea>

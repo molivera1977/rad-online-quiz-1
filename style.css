@@ -675,3 +675,7 @@ body.story-active .container { max-width: 1160px; }
 .lgs-btn.locked,
 .lgs-btn.locked:hover { background: #b8b8b8; box-shadow: 0 5px 0 #8f8f8f; cursor: not-allowed; transform: none; filter: grayscale(1); }
 .locked-note { color: #888; font-size: 0.95rem; margin: 14px 0 0; }
+
+/* Hint gets its own speaker on the left */
+.written-guidance { display: flex; align-items: flex-start; gap: 10px; }
+.guidance-speak-btn { font-size: 0.9rem; min-width: 34px; padding: 3px 6px; background: #fff; font-style: normal; }
