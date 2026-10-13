@@ -13,6 +13,7 @@
 
 /* ── CONFIG ─────────────────────────────────────────── */
 const QUIZ_OPEN     = true;    // false = students locked out; only Teacher Access works. Set true to open.
+const SHARE_MODE    = !!window.SHARE_MODE;   // set by share.js — a visitor's link, never a student's
 const INSTRUCT_SECS = 20;
 const READ_SECS     = 12;
 const MIN_WORDS     = 10;
@@ -511,7 +512,7 @@ const app = {
 
   /* ── READ ALOUD INTRO ── */
   showReadAloudIntro() {
-    if (!QUIZ_OPEN) return;
+    if (!QUIZ_OPEN && !SHARE_MODE) return;
     document.getElementById('welcome-panel').classList.add('hidden');
     this.show('readaloud-screen');
     setTimeout(speakReadAloudIntro, 150);   // announces itself (show() just cancelled any speech)
@@ -552,6 +553,13 @@ const app = {
     this.show('start-screen');
     document.getElementById('welcome-panel').classList.add('hidden');
     document.getElementById('student-login-panel').classList.remove('hidden');
+    if (SHARE_MODE) {   // shared preview: no roster, no student number — straight to the quiz
+      this.studentName = 'Visitor';
+      document.getElementById('login-step-card').classList.add('hidden');
+      document.getElementById('form-select-section').classList.remove('hidden');
+      applyQuizLock(this.studentName);
+      this.checkResume();
+    }
   },
 
   /* ── NAME SELECT ── */
@@ -958,7 +966,7 @@ const app = {
     const date  = new Date();
     this._lastFinishedScore = { score: this.score, total, pct };
 
-    if (!reviewMode) {
+    if (!reviewMode && !SHARE_MODE) {   // a visitor's score is never saved, so the quiz never locks
       const scores = readJSON(SCORES_KEY, []);
       scores.push({
         name: this.studentName, sessionId: this.sessionId, retake: this.isRetake,
@@ -980,7 +988,9 @@ const app = {
 
     this.show('end-screen');
     document.getElementById('review-next-btn').classList.toggle('hidden', !reviewMode);
-    document.getElementById('final-score-sub').textContent = `${formLabel()} · ${this.studentName}`;
+    document.getElementById('final-score-sub').textContent = SHARE_MODE
+      ? `${formLabel()} · Shared preview — this score was not saved`
+      : `${formLabel()} · ${this.studentName}`;
     document.getElementById('final-msg').textContent = msg;
 
     const pctEl = document.getElementById('final-percent');
@@ -1127,7 +1137,7 @@ const app = {
       responses[p.id] = ta ? ta.value.trim() : '';
     });
 
-    const errors = prompts
+    const errors = SHARE_MODE ? [] : prompts   // a visitor may leave the written answers blank
       .map(p => ({ id: p.id, count: countWords(responses[p.id] || '') }))
       .filter(r => r.count < MIN_WORDS)
       .map(r => `${r.id} needs at least ${MIN_WORDS} words (you have ${r.count}).`);
@@ -1144,7 +1154,7 @@ const app = {
     clearTimeout(this._autosaveDraftTimer);
     submitWrittenToSheet(responses.W1 || '', responses.W2 || '', responses.W3 || '', this.writtenTimerSeconds);
 
-    if (!reviewMode) {
+    if (!reviewMode && !SHARE_MODE) {
       const written = readJSON(WRITTEN_KEY, []);
       written.push({ name: this.studentName, timestamp: new Date().toISOString() });
       localStorage.setItem(WRITTEN_KEY, JSON.stringify(written));
@@ -1295,7 +1305,7 @@ app.init();
 
 /* ── CLOSED-TO-STUDENTS LOCK ────────────────────────── */
 (function applyQuizLock() {
-  if (QUIZ_OPEN) return;
+  if (QUIZ_OPEN || SHARE_MODE) return;
   const btn = document.querySelector('.lgs-btn');
   if (!btn) return;
   btn.disabled = true;
