@@ -554,7 +554,7 @@ const app = {
     document.getElementById('welcome-panel').classList.add('hidden');
     document.getElementById('student-login-panel').classList.remove('hidden');
     if (SHARE_MODE) {   // shared preview: no roster, no student number — straight to the quiz
-      this.studentName = 'Visitor';
+      this.studentName = 'Guest';
       document.getElementById('login-step-card').classList.add('hidden');
       document.getElementById('form-select-section').classList.remove('hidden');
       applyQuizLock(this.studentName);
@@ -989,7 +989,7 @@ const app = {
     this.show('end-screen');
     document.getElementById('review-next-btn').classList.toggle('hidden', !reviewMode);
     document.getElementById('final-score-sub').textContent = SHARE_MODE
-      ? `${formLabel()} · Shared preview — this score was not saved`
+      ? `${formLabel()} · Guest view — this score was not saved`
       : `${formLabel()} · ${this.studentName}`;
     document.getElementById('final-msg').textContent = msg;
 
