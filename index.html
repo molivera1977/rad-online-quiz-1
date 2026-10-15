@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>R.A.D. Online Quiz 1</title>
-  <link rel="stylesheet" href="style.css?v=8-ra4" />
+  <link rel="stylesheet" href="style.css?v=8-ra4-nav1" />
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
@@ -241,7 +241,9 @@
       <div style="font-size:3rem;margin-bottom:8px;">🌟</div>
       <h3 style="color:var(--correct);margin:0 0 10px;">Quiz Complete!</h3>
       <p style="color:#555;font-size:0.93rem;margin:0 0 24px;line-height:1.6;">Your written R.A.D. answers have been saved. Your teacher will read them and give you feedback.</p>
-      <button class="start-btn" style="background:#27ae60;box-shadow:0 5px 0 #1e8449;" onclick="app.restart()">🏠 Home</button>
+    <div class="signout-row" style="text-align:center;margin-top:14px;">
+      <button class="signout-btn" onclick="app.restart()">🚪 Sign Out<span class="signout-sub">You are all done. You will go back to the start.</span></button>
+    </div>
     </div>
   </div>
 
@@ -266,6 +268,6 @@
 <script src="share.js?v=3"></script>
 <script src="data/quiz.js?v=5-ra4"></script>
 <script src="data/skills.js?v=1-ra4"></script>
-<script src="script.js?v=11-ra4-sh2-hl2"></script>
+<script src="script.js?v=11-ra4-sh2-hl2-nav1"></script>
 </body>
 </html>

@@ -679,3 +679,9 @@ body.story-active .container { max-width: 1160px; }
 /* Hint gets its own speaker on the left */
 .written-guidance { display: flex; align-items: flex-start; gap: 10px; }
 .guidance-speak-btn { font-size: 0.9rem; min-width: 34px; padding: 3px 6px; background: #fff; font-style: normal; }
+
+/* Finish screen (Marcos 10/14): Sign Out is quieter than the main buttons, and each button says where it goes */
+.signout-btn { background:none; border:2px solid #ccc; border-radius:10px; color:#666; font-family:inherit;
+               font-size:0.95rem; font-weight:700; padding:8px 16px; cursor:pointer; }
+.signout-btn:hover { border-color:#999; color:#333; }
+.signout-sub { display:block; font-size:0.8rem; font-weight:600; color:#888; margin-top:2px; }
