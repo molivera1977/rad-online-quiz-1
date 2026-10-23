@@ -542,7 +542,7 @@ const app = {
     if (!QUIZ_OPEN && !SHARE_MODE) return;
     document.getElementById('welcome-panel').classList.add('hidden');
     this.show('readaloud-screen');
-    setTimeout(speakReadAloudIntro, 150);   // announces itself (show() just cancelled any speech)
+    introTimer = setTimeout(speakReadAloudIntro, 150);   // announces itself (show() just cancelled any speech; leaving first cancels this)
     const btn   = document.getElementById('readaloud-btn');
     const fill  = document.getElementById('readaloud-fill');
     const count = document.getElementById('readaloud-count');
@@ -1257,6 +1257,17 @@ const app = {
     pinModalCallback = null;
   }
 };
+
+/* ── LEAVING ENDS THE READ-ALOUD ──────────────────────
+   Marcos 10/23 (the QPS hub): "if I leave I still hear the read aloud". Another tab or leaving the
+   site ends everything being read — the Read Aloud screen, a question, a Listen — for good, not
+   just the sentence being said (the Read Aloud screen used to go on to its next sentence). */
+function hushReadAloud() {
+  introToken++; clearTimeout(introTimer);
+  stopActiveSpeech();
+}
+window.addEventListener('pagehide', hushReadAloud);
+document.addEventListener('visibilitychange', () => { if (document.hidden) hushReadAloud(); });
 
 /* ── VISIBILITY / UNLOAD ─────────────────────────────── */
 document.addEventListener('visibilitychange', () => {
