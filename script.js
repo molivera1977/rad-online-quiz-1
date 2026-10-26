@@ -295,6 +295,7 @@ function addHighlightFallback(u, spans) {
    as words, and each word lights up as it is read. Leaving the screen
    (app.show) cancels the speech. */
 const INTRO_SAY = { '🔊': 'the speaker button', '⏹': 'the stop button', '—': ',' };
+const READ_RATE = 0.82;    // every read-aloud a student taps (Marcos 10/26: "I like the 0.82. It's clear and easy to listen to.")
 const INTRO_RATE = 0.82;   // Marcos 10/6: 0.92 ran ahead of the highlight
 let introToken = 0, introTimer = null;
 let introMsPerChar = null, introMsPerWord = null;   // learned from this device's voice
@@ -427,7 +428,7 @@ function speakSpans(btn, root, rate) {
   btn.textContent = '⏹';
   let hlIdx = 0;
   const u = new SpeechSynthesisUtterance(spans.map(s => s.textContent).join(' '));
-  u.lang = 'en-US'; u.rate = rate || 0.92;
+  u.lang = 'en-US'; u.rate = rate || READ_RATE;
   u.onboundary = e => {
     if (e.name !== 'word') return;
     spans.forEach(el => el.classList.remove('hl'));
@@ -447,24 +448,24 @@ function speakDir(btn) {
   const p = btn.closest('.dir-section').querySelector('.dir-text');
   if (!p) return;
   if (!p.querySelector('.wrd')) p.innerHTML = wrapWords(p.innerHTML);
-  speakSpans(btn, p, 0.92);
+  speakSpans(btn, p, READ_RATE);
 }
 
 function speakWrittenPrompt(btn, promptId) {
   const p = document.getElementById('prompt-text-' + promptId);
   if (!p) return;
   if (!p.querySelector('.wrd')) p.innerHTML = wrapWords(p.innerHTML);
-  speakSpans(btn, p, 0.92);
+  speakSpans(btn, p, READ_RATE);
 }
 
 function speakGuidance(btn) {
   const t = btn.closest('.written-guidance').querySelector('.guidance-text');
   if (!t.querySelector('.wrd')) t.innerHTML = wrapWords(t.innerHTML);
-  speakSpans(btn, t, 0.92);
+  speakSpans(btn, t, READ_RATE);
 }
 
 function speakParagraph(btn) {
-  speakSpans(btn, btn.closest('.story-para').querySelector('.para-text'), 0.9);
+  speakSpans(btn, btn.closest('.story-para').querySelector('.para-text'), READ_RATE);
 }
 
 /* ── STORY PANEL ────────────────────────────────────── */
@@ -931,7 +932,7 @@ const app = {
       speakBtn.className = 'choice-speak-btn';
       speakBtn.textContent = '🔊';
       speakBtn.title = 'Read this choice aloud';
-      speakBtn.onclick = e => { e.stopPropagation(); speakSpans(speakBtn, btn, 0.9); };
+      speakBtn.onclick = e => { e.stopPropagation(); speakSpans(speakBtn, btn, READ_RATE); };
 
       row.appendChild(speakBtn);
       row.appendChild(btn);
@@ -1202,7 +1203,7 @@ const app = {
     const qBtn = document.getElementById('speak-q-btn');
     const qtEl = document.getElementById('question-text');
     if (!qtEl.querySelector('.wrd')) qtEl.innerHTML = wrapWords(escapeHtml(qtEl.textContent));
-    speakSpans(qBtn, qtEl, 0.92);
+    speakSpans(qBtn, qtEl, READ_RATE);
   },
 
   /* ── HOME ── */
