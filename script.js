@@ -14,7 +14,7 @@
 /* ── CONFIG ─────────────────────────────────────────── */
 const QUIZ_OPEN     = true;    // false = students locked out; only Teacher Access works. Set true to open.
 const SHARE_MODE    = !!window.SHARE_MODE;   // set by share.js — a visitor's link, never a student's
-const INSTRUCT_SECS = 20;
+const INSTRUCT_SECS = 15;
 const READ_SECS     = 12;
 const MIN_WORDS     = 10;
 const STORAGE_KEY   = 'radq1_session_v1';
@@ -837,7 +837,7 @@ const app = {
     document.getElementById('timer-display').textContent = `${m}:${s}`;
   },
 
-  /* ── INSTRUCTIONS LOCK (20s) ── */
+  /* ── INSTRUCTIONS LOCK (15s) ── */
   startInstructionsTimer() {
     if (this.instructInterval) { clearInterval(this.instructInterval); this.instructInterval = null; }
     const btn   = document.getElementById('ready-btn');
