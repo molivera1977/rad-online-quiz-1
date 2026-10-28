@@ -391,6 +391,16 @@ function speakReadAloudIntro() {
   sayPiece(0);
 }
 
+/* Light the word the voice is on. The voice says where it is in the text (charIndex); it does NOT signal every
+   word — Samantha in Chrome gave no signal for "example:" after "For" (measured in Marcos's Chrome 10/28) — so
+   moving one word per signal fell further behind with each skipped word ("the highlighting can't keep up").
+   The spoken text has one token per span, joined by single spaces. */
+function lightAt(spans, text, charIndex) {
+  let j = 0, start = 0;
+  String(text).split(' ').forEach((tok, k) => { if (start <= charIndex) j = k; start += tok.length + 1; });
+  spans.forEach(sp => sp.classList.remove('hl'));
+  if (spans[j]) spans[j].classList.add('hl');
+}
 function wrapWords(html) {
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
@@ -426,14 +436,12 @@ function speakSpans(btn, root, rate) {
   if (!spans.length) return;
   activeSpeakBtn = btn;
   btn.textContent = '⏹';
-  let hlIdx = 0;
   const u = new SpeechSynthesisUtterance(spans.map(s => s.textContent).join(' '));
   u.lang = 'en-US'; u.rate = rate || READ_RATE;
   u.onboundary = e => {
     if (e.name !== 'word') return;
     spans.forEach(el => el.classList.remove('hl'));
-    if (spans[hlIdx]) spans[hlIdx].classList.add('hl');
-    hlIdx++;
+    lightAt(spans, u.text, e.charIndex);
   };
   u.onend = () => {
     spans.forEach(el => el.classList.remove('hl'));
