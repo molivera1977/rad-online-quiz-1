@@ -1406,5 +1406,8 @@ if (window.SpotSync) SpotSync.init({
   site: 'rad-online-quiz-1', key: STORAGE_KEY, url: SHEET_URL, app,
   who: () => app.studentName,
   skip: () => SHARE_MODE || reviewMode,
-  usable: s => Array.isArray(s.currentBank) && s.currentBank.length > 0
+  usable: s => Array.isArray(s.currentBank) && s.currentBank.length > 0,
+  // finished parts follow the student too (Marcos 11/12: "Make finished parts and unlocks follow kids across computers next?" → "Yes, build it")
+  records: [{ key: SCORES_KEY }, { key: WRITTEN_KEY }, { key: RETAKE_KEY, kind: 'names' }],
+  refresh: name => applyQuizLock(name)
 });
